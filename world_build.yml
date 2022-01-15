@@ -1,0 +1,41 @@
+---
+- hosts: all
+  become: true
+  become_user: minecraft 
+
+  tasks:
+
+  - name: Make the instance directory
+    file:
+      dest: /opt/minecraft/world1
+      state: directory
+      owner: minecraft
+      group: minecraft
+      mode: '0755'
+  
+  - name: Copy the minecraft jar into the new world directory.
+    copy:
+      src: /opt/minecraft/server.jar
+      dest: /opt/minecraft/world1/minecraft_server.jar
+      owner: minecraft
+      group: minecraft
+      mode: '0644'
+      remote_src: yes
+
+  - name: Start the minecraft world, to generate the base config files
+    service:
+      name: minecraft@world1
+      state: started
+      enabled: true
+  
+  - name: Accept the eula
+    lineinfile:
+      path: /opt/minecraft/world1/eula.txt
+      regexp: '^eula='
+      line: eula=true
+  
+  - name: Start the minecraft world, and set it to start on server startup.
+    service:
+      name: minecraft@world1
+      state: started
+      enabled: true
