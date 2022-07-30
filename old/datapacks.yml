@@ -1,0 +1,20 @@
+---
+- hosts: all
+  become: true
+
+  tasks:
+
+  - name: Unpack VanillaTweaks archive
+    unarchive: 
+      src: "{{ item }}"
+      dest: /opt/minecraft/world1/world/datapacks/
+      owner: minecraft
+      group: minecraft
+    with_fileglob:
+      - "VanillaTweaks*.zip"
+
+  - name: Restart the minecraft world to apply the datapacks
+    service:
+      name: minecraft@world1
+      state: restarted
+      enabled: true

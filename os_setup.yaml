@@ -1,0 +1,22 @@
+---
+
+- name: Set Server Hostname 
+  hostname:
+    name: "{{ hostname }}"
+    use: systemd
+
+- name: Install Virtualization Packages
+  yum:
+    name: "@virtualization"
+    state: latest
+
+- name: Install MiniKube Latest from remote repo
+  yum: 
+    name: https://storage.googleapis.com/minikube/releases/latest/minikube-latest.x86_64.rpm
+    state: present
+
+- name: Start and enable the libvirtd service
+  service: 
+    name: libvirtd
+    state: started
+    enabled: yes

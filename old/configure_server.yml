@@ -1,0 +1,52 @@
+---
+- hosts: all
+  become: true
+
+  tasks:
+
+  - name: Put SELinux into permissive mode
+    selinux:
+      policy: targeted
+      state: permissive
+
+  - name: Create the Minecraft Service Account
+    user:
+      name: minecraft
+      comment: minecraft service account
+      home: /opt/minecraft
+      system: yes
+  
+  - name: Create the minecraft server directories
+    file:
+      path: /opt/minecraft
+      state: directory
+      mode: '0755'
+      owner: minecraft
+      group: minecraft
+  
+  - name: Install the latest versions of screen and java-latest-openjdk
+    yum:
+      name: 
+        - screen
+        - java-latest-openjdk
+      state: latest
+
+  - name: Obtain the latest minecraft server jar file
+    get_url:
+      url: https://launcher.mojang.com/v1/objects/125e5adf40c659fd3bce3e66e67a16bb49ecc1b9/server.jar
+      dest: /opt/minecraft/
+      owner: minecraft
+      group: minecraft
+  
+  - name: Create the systemd unit file
+    copy:
+      src: minecraft@.service
+      dest: /etc/systemd/system/
+      owner: root
+      group: root
+      mode: '0755'
+ 
+  - name: reload systemd daemons
+    systemd:
+      daemon_reload: yes
+  
